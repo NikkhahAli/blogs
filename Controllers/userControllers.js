@@ -36,9 +36,18 @@ export const updateUser = catchAsync (async (req , res , next) =>{
     const user = await User.findById(id) 
     const { role : userRole , password , ...others } = req.body 
 
+    let updateUsers ;
+
     if (user._id === userId || role === "admin") {
         const hashPassword=  bcryptjs.hashSync(password , 10)
-        const updateUsers = await User.findByIdAndUpdate(id , { password : hashPassword , ...others} , {new : true , runValidators : true})  
+        if (role === "admin") {
+            updateUsers = await User.findByIdAndUpdate(id , { password : hashPassword , ...others , role :userRole} , {new : true , runValidators : true})  
+        }
+        else {
+            updateUsers = await User.findByIdAndUpdate(id , { password : hashPassword , ...others} , {new : true , runValidators : true})  
+            
+        }
+        
         return res.status(200).json({
             status : "ok" ,
             message : "updated..." ,
